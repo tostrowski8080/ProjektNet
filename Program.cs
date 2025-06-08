@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WorkshopManager.Data;
 using WorkshopManager.Models;
+using WorkshopManager.Services;
 
 namespace WorkshopManager
 {
@@ -15,7 +16,12 @@ namespace WorkshopManager
 
             // Add services to the container.
             builder.Services.AddDbContext<WorkshopDbContext>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
+            builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IClientService, ClientService>();
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<IClientMapper, ClientMapper>();
+            builder.Services.AddRazorPages();
 
             var app = builder.Build();
 
@@ -26,10 +32,15 @@ namespace WorkshopManager
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.MapRazorPages();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

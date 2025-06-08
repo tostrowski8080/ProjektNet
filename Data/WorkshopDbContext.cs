@@ -7,9 +7,7 @@ namespace WorkshopManager.Data
     public class WorkshopDbContext : IdentityDbContext<ApplicationUser>
     {
         public WorkshopDbContext(DbContextOptions<WorkshopDbContext> options)
-            : base(options)
-        {
-        }
+            : base(options){ }
 
         public DbSet<Client> Clients { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
