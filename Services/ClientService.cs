@@ -10,7 +10,7 @@ namespace WorkshopManager.Services
 
         public ClientService(WorkshopDbContext context) { _context = context; }
 
-        public async Task<IEnumerable<Client>> GetClientsAsync()
+        public async Task<IEnumerable<Client>> GetAllClientsAsync()
         {
             return await _context.Clients.Include(c => c.Vehicles).ToListAsync();
         }

@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WorkshopManager.Models
+namespace WorkshopManager.DTOs
 {
-    public class Client
+    public class ClientCreateDto
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [MaxLength(100)]
         public string FirstName { get; set; } = string.Empty;
@@ -21,7 +18,5 @@ namespace WorkshopManager.Models
 
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
-
-        public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
     }
 }

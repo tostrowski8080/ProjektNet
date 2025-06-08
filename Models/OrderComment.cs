@@ -11,7 +11,7 @@ namespace WorkshopManager.Models
 
         public int AuthorId { get; set; }
 
-        public string Text { get; set; }
+        public string Text { get; set; } = string.Empty;
 
         public DateTime CreationDate { get; set; }
     }
