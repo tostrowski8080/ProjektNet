@@ -9,7 +9,7 @@ namespace WorkshopManager
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -21,12 +21,17 @@ namespace WorkshopManager
             builder.Services.AddScoped<IClientService, ClientService>();
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IClientMapper, ClientMapper>();
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
-            }).AddRoles<IdentityRole>().AddEntityFrameworkStores<WorkshopDbContext>();
+            }).AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                await SeedRolesAsync(scope.ServiceProvider);
+            }
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -52,6 +57,19 @@ namespace WorkshopManager
                 .WithStaticAssets();
 
             app.Run();
+        }
+
+        static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            string[] roles = { "Admin", "Mechanic", "Receptionist" };
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole(role));
+            }
         }
     }
 }

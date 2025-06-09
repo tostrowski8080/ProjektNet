@@ -22,7 +22,7 @@ namespace WorkshopManager.Models
 
         public int WorkerId { get; set; }
 
-        public ICollection<Task> Tasks { get; set; } = new List<Task>();
+        public ICollection<ServiceTask> Tasks { get; set; } = new List<ServiceTask>();
 
         public ICollection<Part> Parts { get; set; } = new List<Part>();
     }

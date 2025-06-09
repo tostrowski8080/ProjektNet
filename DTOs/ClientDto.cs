@@ -13,5 +13,7 @@ namespace WorkshopManager.DTOs
         public string PhoneNumber { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
+
+        public List<VehicleDto> Vehicles { get; set; } = new();
     }
 }
