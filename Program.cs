@@ -25,6 +25,12 @@ namespace WorkshopManager
             {
                 options.SignIn.RequireConfirmedAccount = false;
             }).AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
+            builder.Services.AddRazorPages();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+            });
 
             var app = builder.Build();
 
@@ -49,6 +55,7 @@ namespace WorkshopManager
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapRazorPages();
 
             app.MapStaticAssets();
             app.MapControllerRoute(

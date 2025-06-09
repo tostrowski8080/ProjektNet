@@ -8,7 +8,8 @@ namespace WorkshopManager.Models
         {
             Admin,
             Mechanic,
-            Receptionist
+            Receptionist,
+            Client
         }
         public Role UserRole { get; set; }
     }

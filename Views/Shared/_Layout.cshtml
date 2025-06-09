@@ -48,3 +48,34 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = await UserManager.GetRolesAsync(user);
+
+    if (roles.Contains("Admin"))
+    {
+        <a asp-page="/Dashboard/Admin">Admin Panel</a>
+    }
+    else if (roles.Contains("Mechanic"))
+    {
+        <a asp-page="/Dashboard/Mechanic">Mechanic Panel</a>
+    }
+    else if (roles.Contains("Receptionist"))
+    {
+        <a asp-page="/Dashboard/Receptionist">Receptionist Panel</a>
+    }
+    else if (roles.Contains("Client"))
+    {
+        <a asp-page="/Dashboard/Client">Client Panel</a>
+    }
+
+    <form method="post" asp-area="" asp-page="/Account/Logout">
+        <button type="submit">Wyloguj</button>
+    </form>
+}
