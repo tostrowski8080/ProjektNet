@@ -12,7 +12,7 @@ using WorkshopManager.Data;
 namespace WorkshopManager.Migrations
 {
     [DbContext(typeof(WorkshopDbContext))]
-    [Migration("20250609020046_InitialCreate")]
+    [Migration("20250610111153_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -210,8 +210,9 @@ namespace WorkshopManager.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int>("UserRole")
-                        .HasColumnType("int");
+                    b.Property<string>("UserRole")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -234,6 +235,10 @@ namespace WorkshopManager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -252,7 +257,12 @@ namespace WorkshopManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("userId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("userId");
 
                     b.ToTable("Clients");
                 });
@@ -303,9 +313,12 @@ namespace WorkshopManager.Migrations
                     b.Property<int>("ServiceOrderId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ServiceTaskId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ServiceOrderId");
+                    b.HasIndex("ServiceTaskId");
 
                     b.ToTable("Parts");
                 });
@@ -350,7 +363,7 @@ namespace WorkshopManager.Migrations
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WorkerId")
+                    b.Property<int?>("WorkerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -477,13 +490,20 @@ namespace WorkshopManager.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WorkshopManager.Models.Client", b =>
+                {
+                    b.HasOne("WorkshopManager.Models.ApplicationUser", "user")
+                        .WithMany()
+                        .HasForeignKey("userId");
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("WorkshopManager.Models.Part", b =>
                 {
-                    b.HasOne("WorkshopManager.Models.ServiceOrder", null)
+                    b.HasOne("WorkshopManager.Models.ServiceTask", null)
                         .WithMany("Parts")
-                        .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ServiceTaskId");
                 });
 
             modelBuilder.Entity("WorkshopManager.Models.ServiceOrder", b =>
@@ -522,9 +542,12 @@ namespace WorkshopManager.Migrations
 
             modelBuilder.Entity("WorkshopManager.Models.ServiceOrder", b =>
                 {
-                    b.Navigation("Parts");
-
                     b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("WorkshopManager.Models.ServiceTask", b =>
+                {
+                    b.Navigation("Parts");
                 });
 
             modelBuilder.Entity("WorkshopManager.Models.Vehicle", b =>

@@ -1,0 +1,45 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model WorkshopManager.Pages.Vehicles.CreateModel
+@{
+    ViewData["Title"] = "Add Client";
+}
+
+<h2>Add Vehicle</h2>
+
+<form method="post">
+    <div>
+        <label>Make:</label>
+        <input asp-for="InputVehicle.Make" />
+        <span asp-validation-for="InputVehicle.Make" class="text-danger"></span>
+    </div>
+    <div>
+        <label>Model:</label>
+        <input asp-for="InputVehicle.Model" />
+        <span asp-validation-for="InputVehicle.Model" class="text-danger"></span>
+    </div>
+    <div>
+        <label>Vin:</label>
+        <input asp-for="InputVehicle.Vin" />
+        <span asp-validation-for="InputVehicle.Vin" class="text-danger"></span>
+    </div>
+    <div>
+        <label>Registration number:</label>
+        <input asp-for="InputVehicle.RegistrationNumber" />
+        <span asp-validation-for="InputVehicle.RegistrationNumber" class="text-danger"></span>
+    </div>
+    <div>
+        <label>Year:</label>
+        <input asp-for="InputVehicle.Year" />
+        <span asp-validation-for="InputVehicle.Year" class="text-danger"></span>
+    </div>
+    <label>
+        Owner:
+        <select asp-for="InputVehicle.ClientId" asp-items="@(new SelectList(Model.Clients, "Id", "LastName"))"></select>
+    </label><br />
+    <button type="submit">Save</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

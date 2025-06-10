@@ -24,7 +24,8 @@ namespace WorkshopManager.Controllers
             var user = new ApplicationUser
             {
                 UserName = dto.Email,
-                Email = dto.Email
+                Email = dto.Email,
+                UserRole = dto.Role,
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);

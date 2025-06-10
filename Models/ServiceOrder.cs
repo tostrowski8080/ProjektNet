@@ -7,7 +7,7 @@ namespace WorkshopManager.Models
         public enum StatusType
         {
             New,
-            Progress,
+            InProgress,
             Finished
         }
 
@@ -20,10 +20,9 @@ namespace WorkshopManager.Models
 
         public StatusType Status { get; set; }
 
-        public int WorkerId { get; set; }
+        public int? WorkerId { get; set; }
 
         public ICollection<ServiceTask> Tasks { get; set; } = new List<ServiceTask>();
 
-        public ICollection<Part> Parts { get; set; } = new List<Part>();
     }
 }

@@ -21,10 +21,7 @@ namespace WorkshopManager
             builder.Services.AddScoped<IClientService, ClientService>();
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IClientMapper, ClientMapper>();
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.SignIn.RequireConfirmedAccount = false;
-            }).AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
             builder.Services.AddRazorPages();
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -60,8 +57,7 @@ namespace WorkshopManager
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }
@@ -70,7 +66,7 @@ namespace WorkshopManager
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roles = { "Admin", "Mechanic", "Receptionist" };
+            string[] roles = { "Admin", "Mechanic", "Receptionist", "Client" };
 
             foreach (var role in roles)
             {

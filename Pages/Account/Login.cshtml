@@ -1,4 +1,7 @@
 ﻿@page
+@using WorkshopManager
+@using WorkshopManager.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.Account.LoginModel
 @{
     ViewData["Title"] = "Login";
@@ -7,6 +10,8 @@
 <h2>Login</h2>
 
 <form method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
     <div>
         <label>Email:</label>
         <input asp-for="Input.Email" />

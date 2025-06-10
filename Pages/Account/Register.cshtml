@@ -1,4 +1,7 @@
 ﻿@page
+@using WorkshopManager
+@using WorkshopManager.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.Account.RegisterModel
 @{
     ViewData["Title"] = "Register";
@@ -8,6 +11,13 @@
 <h2>Register</h2>
 
 <form method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div>
+        <label>Username:</label>
+        <input asp-for="Input.Username" />
+        <span asp-validation-for="Input.Username"></span>
+    </div>
     <div>
         <label>Email:</label>
         <input asp-for="Input.Email" />
@@ -25,3 +35,7 @@
     </div>
     <button type="submit">Register</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

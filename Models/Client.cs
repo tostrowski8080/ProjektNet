@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace WorkshopManager.Models
 {
@@ -21,6 +22,9 @@ namespace WorkshopManager.Models
 
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+
+        public string AccountId { get; set; } = string.Empty;
+        public ApplicationUser? user { get; set; } = null;
 
         public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
     }

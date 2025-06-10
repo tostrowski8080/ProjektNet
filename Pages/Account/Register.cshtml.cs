@@ -17,8 +17,8 @@ namespace WorkshopManager.Pages.Account
             _signInManager = signInManager;
         }
 
-        [BindProperty]
-        public RegisterInput Input { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public RegisterInput Input { get; set; } = new RegisterInput();
 
         public class RegisterInput
         {
@@ -35,26 +35,45 @@ namespace WorkshopManager.Pages.Account
             public string ConfirmPassword { get; set; }
 
             [Required]
-            public string Role { get; set; }
+            public string Username { get; set; }
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-                return Page();
 
-            var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+            if (!ModelState.IsValid)
+            {
+                foreach (var kvp in ModelState)
+                {
+                    foreach (var error in kvp.Value.Errors)
+                    {
+                        Console.WriteLine($"Validation error on {kvp.Key}: {error.ErrorMessage}");
+                    }
+                }
+                return Page();
+            }
+
+            if (Input.Password != Input.ConfirmPassword)
+            {
+                Console.WriteLine($"Password");
+                return Page();
+            }
+            var user = new ApplicationUser { UserName = Input.Username, Email = Input.Email, UserRole = "Client" };
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, Input.Role);
+                await _userManager.AddToRoleAsync(user, "Client");
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToRoleDashboard(Input.Role);
+                Console.WriteLine($"Success");
+                return RedirectToRoleDashboard("Client");
             }
 
             foreach (var error in result.Errors)
+            {
+                Console.WriteLine($"Identity error: {error.Code} - {error.Description}");
                 ModelState.AddModelError(string.Empty, error.Description);
+            }
 
             return Page();
         }
