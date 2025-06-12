@@ -8,7 +8,8 @@ namespace WorkshopManager.Models
         {
             New,
             InProgress,
-            Finished
+            Finished,
+            Cancelled
         }
 
         [Key]
@@ -20,9 +21,13 @@ namespace WorkshopManager.Models
 
         public StatusType Status { get; set; }
 
-        public int? WorkerId { get; set; }
+        public string? Description { get; set; } = string.Empty;
 
-        public ICollection<ServiceTask> Tasks { get; set; } = new List<ServiceTask>();
+        public string? WorkerId { get; set; }
+
+        public int? TotalCost { get; set; } = 0;
+
+        public ICollection<ServiceTask>? Tasks { get; set; } = new List<ServiceTask>();
 
     }
 }

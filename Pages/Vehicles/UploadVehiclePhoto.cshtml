@@ -1,0 +1,58 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model WorkshopManager.Pages.Vehicles.UploadVehiclePhotoModel
+@{
+    ViewData["Title"] = "Upload Vehicle Photo";
+}
+
+<h2>Upload Vehicle Photo</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="vehicleSelect">Select Vehicle:</label>
+        <select asp-for="SelectedVehicleId" asp-items="@(new SelectList(Model.Vehicles, "Id", "RegistrationNumber"))" class="form-control" onchange="this.form.submit()">
+            <option value="">-- Choose Vehicle --</option>
+        </select>
+    </div>
+</form>
+
+@if (Model.SelectedVehicle != null)
+{
+    var v = Model.SelectedVehicle;
+
+    <div class="card mt-4 p-3">
+        <h4>@v.Make @v.Model (@v.Year)</h4>
+        <p><strong>VIN:</strong> @v.Vin</p>
+        <p><strong>Reg. Number:</strong> @v.RegistrationNumber</p>
+
+        @if (!string.IsNullOrEmpty(v.PhotoPath))
+        {
+            <div class="mb-3">
+                <img src="@v.PhotoPath" alt="Vehicle Image" style="max-width:300px;" class="img-thumbnail" />
+            </div>
+        }
+
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="SelectedVehicleId" value="@v.Id" />
+            <div class="form-group">
+                <label for="UploadedImage">Upload Image:</label>
+                <input type="file" asp-for="UploadedImage" accept=".jpg,.jpeg,.png" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-success mt-2">Upload</button>
+        </form>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger mt-3">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(e => e.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

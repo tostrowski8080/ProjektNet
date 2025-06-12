@@ -37,7 +37,15 @@ namespace WorkshopManager.Pages.Account
             if (!ModelState.IsValid)
                 return Page();
 
-            var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, false);
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, false, false);
 
             if (!result.Succeeded)
             {
@@ -45,8 +53,8 @@ namespace WorkshopManager.Pages.Account
                 return Page();
             }
 
-            var user = await _userManager.FindByEmailAsync(Input.Email);
-            var roles = await _userManager.GetRolesAsync(user);
+            var founduser = await _userManager.FindByEmailAsync(Input.Email);
+            var roles = await _userManager.GetRolesAsync(founduser);
 
             return roles.FirstOrDefault() switch
             {

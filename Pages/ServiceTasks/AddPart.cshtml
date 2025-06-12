@@ -1,0 +1,41 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model WorkshopManager.Pages.ServiceTasks.AddPartModel
+@{
+    ViewData["Title"] = "Add Parts to Service Task";
+}
+
+<h2>Add Parts to Service Task</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label>Select Service Task:</label>
+        <select asp-for="SelectedTaskId" class="form-control">
+            <option value="">-- select task --</option>
+            @foreach (var task in Model.AvailableTasks)
+            {
+                <option value="@task.Id">
+                    Task #@task.Id - Order #@task.ServiceOrderId - @task.Description
+                </option>
+            }
+        </select>
+    </div>
+
+    <h4 class="mt-4">Select parts and quantity:</h4>
+    @for (int i = 0; i < Model.PartCatalog.Count; i++)
+    {
+        <div class="form-group row align-items-center">
+            <label class="col-sm-4 col-form-label">@Model.PartCatalog[i].Name (Stock: @Model.PartCatalog[i].Stock, Price: @Model.PartCatalog[i].Price)</label>
+            <div class="col-sm-4">
+                <input type="hidden" name="PartInputs[@i].PartCatalogId" value="@Model.PartCatalog[i].Id" />
+                <input type="number" name="PartInputs[@i].Quantity" class="form-control" min="0" value="0" />
+            </div>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary mt-4">Add Parts</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

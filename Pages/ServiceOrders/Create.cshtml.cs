@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using WorkshopManager.Data;
 using WorkshopManager.Models;
 
 namespace WorkshopManager.Pages.ServiceOrders
 {
+    [Authorize(Roles = "Admin,Receptionist")]
     public class CreateModel : PageModel
     {
         private readonly WorkshopDbContext _context;
@@ -15,23 +18,50 @@ namespace WorkshopManager.Pages.ServiceOrders
         }
 
         [BindProperty]
-        public ServiceOrder InputOrder { get; set; } = new ServiceOrder();
+        public int SelectedVehicleId { get; set; }
 
-        public List<Vehicle> Vehicles { get; set; }
+        [BindProperty]
+        public string? Description { get; set; }
 
-        public void OnGet()
+        [BindProperty]
+        public string? SelectedWorkerId { get; set; }
+
+        public List<Vehicle> Vehicles { get; set; } = new();
+        public List<ApplicationUser> Mechanics { get; set; } = new();
+
+        public async Task<IActionResult> OnGetAsync()
         {
-            Vehicles = _context.Vehicles.ToList();
+            Vehicles = await _context.Vehicles
+                .Include(v => v.Client)
+                .Where(v => v.Client != null && !string.IsNullOrEmpty(v.Client.AccountId))
+                .ToListAsync();
+
+            Mechanics = await _context.Users
+                .Where(u => u.UserRole == "Mechanic")
+                .ToListAsync();
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || SelectedVehicleId == 0)
+            {
                 return Page();
-            InputOrder.CreationDate= DateTime.Now;
-            InputOrder.Status = ServiceOrder.StatusType.New;
-            _context.ServiceOrders.Add(InputOrder);
+            }
+
+            var order = new ServiceOrder
+            {
+                VehicleId = SelectedVehicleId,
+                CreationDate = DateTime.Now,
+                Description = Description,
+                Status = ServiceOrder.StatusType.New,
+                WorkerId = string.IsNullOrEmpty(SelectedWorkerId) ? null : SelectedWorkerId
+            };
+
+            _context.ServiceOrders.Add(order);
             await _context.SaveChangesAsync();
+
             return RedirectToRoleDashboard();
         }
 

@@ -1,0 +1,63 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model WorkshopManager.Pages.Parts.CreateModel
+@{
+    ViewData["Title"] = "Parts Panel";
+}
+
+<h2>Parts Catalog</h2>
+
+<form method="post" asp-page-handler="UpdateStock">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Stock</th>
+                <th>Required (in use)</th>
+                <th>Update Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CatalogItems)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Stock</td>
+                    <td>@item.Required</td>
+                    <td>
+                        <input type="number" name="UpdatedStocks[@item.Id]" value="@item.Stock" min="0" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit">Save Changes</button>
+</form>
+
+@if (Model.IsAdmin)
+{
+    <hr />
+    <h3>Add New Part (Admin only)</h3>
+    <form method="post" asp-page-handler="AddPart">
+        <div>
+            <label>Name:</label>
+            <input asp-for="NewPart.Name" />
+            <span asp-validation-for="NewPart.Name" class="text-danger"></span>
+        </div>
+        <div>
+            <label>Stock:</label>
+            <input asp-for="NewPart.Stock" type="number" min="0" />
+            <span asp-validation-for="NewPart.Stock" class="text-danger"></span>
+        </div>
+        <div>
+            <label>Price:</label>
+            <input asp-for="NewPart.Price" type="number" min="0" />
+            <span asp-validation-for="NewPart.Price" class="text-danger"></span>
+        </div>
+        <button type="submit">Add Part</button>
+    </form>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

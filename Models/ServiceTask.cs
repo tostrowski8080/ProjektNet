@@ -10,10 +10,10 @@ namespace WorkshopManager.Models
         
         public int ServiceOrderId { get; set; }
 
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
 
-        public int Cost { get; set; }
+        public int? Cost { get; set; }
 
-        public ICollection<Part> Parts { get; set; } = new List<Part>();
+        public ICollection<Part>? Parts { get; set; } = new List<Part>();
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WorkshopManager.Data;
@@ -5,6 +6,7 @@ using WorkshopManager.Models;
 
 namespace WorkshopManager.Pages.Vehicles
 {
+    [Authorize(Roles = "Admin,Receptionist")]
     public class CreateModel : PageModel
     {
         private readonly WorkshopDbContext _context;

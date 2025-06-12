@@ -1,0 +1,69 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model WorkshopManager.Pages.ServiceOrders.DetailsModel
+@{
+    ViewData["Title"] = "Service Order Details";
+    var order = Model.ServiceOrder;
+}
+
+<h2>Service Order #@order.Id</h2>
+
+<div class="mt-4">
+    <p><strong>Status:</strong> @order.Status</p>
+    <p><strong>Created:</strong> @order.CreationDate.ToString("yyyy-MM-dd")</p>
+    <p><strong>Assigned Mechanic:</strong> @(Model.Mechanic?.UserName ?? "Unassigned")</p>
+    <p><strong>Description:</strong> @order.Description</p>
+</div>
+
+<hr />
+<h3>Vehicle Info</h3>
+<p><strong>Make:</strong> @Model.Vehicle.Make</p>
+<p><strong>Model:</strong> @Model.Vehicle.Model</p>
+<p><strong>VIN:</strong> @Model.Vehicle.Vin</p>
+<p><strong>Registration:</strong> @Model.Vehicle.RegistrationNumber</p>
+
+<hr />
+<h3>Tasks</h3>
+
+@if (order.Tasks == null || !order.Tasks.Any())
+{
+    <p>No tasks assigned yet.</p>
+}
+else
+{
+    foreach (var task in order.Tasks)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Task #@task.Id</h5>
+                <p class="card-text"><strong>Description:</strong> @task.Description</p>
+                <p><strong>Task Cost:</strong> @(task.Cost ?? 0) zł</p>
+
+                @if (task.Parts != null && task.Parts.Any())
+                {
+                    <h6>Parts Used:</h6>
+                    <ul>
+                        @foreach (var part in task.Parts)
+                        {
+                            var catalogItem = Model.PartCatalog.FirstOrDefault(p => p.Id == part.PartCatalogId);
+                            <li>
+                                @catalogItem?.Name - Qty: @part.Quantity - Cost: @part.Cost zł
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No parts used.</p>
+                }
+            </div>
+        </div>
+    }
+
+    <hr />
+    <h4>Total Cost: @Model.TotalCost</h4>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

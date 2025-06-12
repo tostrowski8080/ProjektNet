@@ -1,0 +1,39 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model WorkshopManager.Pages.ServiceTasks.CreateModel
+@{
+    ViewData["Title"] = "Add Service Task";
+}
+
+<h2>Add Service Task</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label>Select assigned service order:</label>
+        <select asp-for="SelectedOrderId" class="form-control">
+            <option value="">-- select an order --</option>
+            @foreach (var order in Model.AssignedOrders)
+            {
+                <option value="@order.Id">
+                    Order #@order.Id - @order.CreationDate.ToShortDateString() - @order.Status
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Cost (PLN)</label>
+        <input asp-for="Cost" class="form-control" type="number" min="0" />
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Add Task</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

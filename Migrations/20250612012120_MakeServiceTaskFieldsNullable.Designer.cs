@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkshopManager.Data;
 
@@ -11,9 +12,11 @@ using WorkshopManager.Data;
 namespace WorkshopManager.Migrations
 {
     [DbContext(typeof(WorkshopDbContext))]
-    partial class WorkshopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612012120_MakeServiceTaskFieldsNullable")]
+    partial class MakeServiceTaskFieldsNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -354,17 +357,14 @@ namespace WorkshopManager.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkerId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("WorkerId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

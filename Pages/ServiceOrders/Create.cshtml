@@ -2,17 +2,42 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.ServiceOrders.CreateModel
 @{
-    ViewData["Title"] = "Add Client";
+    ViewData["Title"] = "New Service Order";
 }
 
-<h2>Add Vehicle</h2>
+<h2>New Service Order</h2>
 
 <form method="post">
-    <label>
-        Vehicle:
-        <select asp-for="InputOrder.VehicleId" asp-items="@(new SelectList(Model.Vehicles, "Id", "Vin"))"></select>
-    </label><br />
-    <button type="submit">Save</button>
+    <div class="form-group">
+        <label for="vehicleSelect">Choose vehicle:</label>
+        <select id="vehicleSelect" asp-for="SelectedVehicleId" class="form-control">
+            <option value="">-- choose a vehicle --</option>
+            @foreach (var vehicle in Model.Vehicles)
+            {
+                <option value="@vehicle.Id">
+                    @vehicle.Make @vehicle.Model (@vehicle.RegistrationNumber)
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group mt-3">
+        <label for="description">Description:</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="form-group mt-3">
+        <label for="workerSelect">Assign a mechanic:</label>
+        <select asp-for="SelectedWorkerId" class="form-control">
+            <option value="">-- no assignment --</option>
+            @foreach (var mech in Model.Mechanics)
+            {
+                <option value="@mech.Id">@mech.UserName</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Create order</button>
 </form>
 
 @section Scripts {
