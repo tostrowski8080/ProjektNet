@@ -39,6 +39,7 @@ Adres github: https://github.com/tostrowski8080/ProjektNet
 
 ## Struktura projektu
 
+```
 /WorkshopManager
 ├── Controllers/
 ├── DTOs/
@@ -52,6 +53,7 @@ Adres github: https://github.com/tostrowski8080/ProjektNet
 │   └── uploads/         // zdjęcia pojazdów
 ├── Data/
 ├── Program.cs
+```
 
 ## BackgroundService - raporty e-mail
 
