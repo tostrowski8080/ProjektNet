@@ -1,46 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using WorkshopManager.Data;
+using WorkshopManager.DTOs;
+using WorkshopManager.Services;
 using WorkshopManager.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WorkshopManager.Pages.ServiceOrders
 {
+    [Authorize(Roles = "Admin,Mechanic")]
     public class DetailsModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IServiceOrderService _orderService;
 
-        public DetailsModel(WorkshopDbContext context)
+        public DetailsModel(IServiceOrderService orderService)
         {
-            _context = context;
+            _orderService = orderService;
         }
 
-        public ServiceOrder? ServiceOrder { get; set; }
-        public Vehicle? Vehicle { get; set; }
-        public ApplicationUser? Mechanic { get; set; }
-        public List<PartCatalogItem>? PartCatalog { get; set; } = new();
+        public List<ServiceOrderDto> Orders { get; set; } = new();
 
-        public int TotalCost { get; set; }
+        [BindProperty]
+        public Dictionary<int, string> UpdatedStatuses { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync()
         {
-            ServiceOrder = await _context.ServiceOrders.Include(o => o.Tasks!.AsEnumerable()).ThenInclude(t => t.Parts)
-                .FirstOrDefaultAsync(o => o.Id == id);
+            var mechanicId = User.Identity?.Name;
+            if (mechanicId == null)
+                return Unauthorized();
 
-            if (ServiceOrder == null)
-                return NotFound();
+            var all = await _orderService.GetAllAsync();
+            Orders = all
+                .Where(o => o.WorkerId == mechanicId)
+                .ToList();
 
-            Vehicle = await _context.Vehicles.FirstOrDefaultAsync(v => v.Id == ServiceOrder.VehicleId);
-            Mechanic = ServiceOrder.WorkerId != null
-                ? await _context.Users.FirstOrDefaultAsync(u => u.Id == ServiceOrder.WorkerId)
-                : null;
-
-            PartCatalog = await _context.PartCatalog.ToListAsync();
-
-            TotalCost = ServiceOrder.Tasks?
-                .Sum(t => (t.Cost ?? 0) + t.Parts?.Sum(p => p.Cost) ?? 0) ?? 0;
+            foreach (var o in Orders)
+                UpdatedStatuses[o.Id] = o.Status;
 
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            var mechanicId = User.Identity?.Name;
+            if (mechanicId == null)
+                return Unauthorized();
+
+            foreach (var kv in UpdatedStatuses)
+            {
+                var dto = new ServiceOrderUpdateDto
+                {
+                    Id = kv.Key,
+                    Status = kv.Value
+                };
+                await _orderService.UpdateAsync(dto);
+            }
+
+            return RedirectToPage();
         }
     }
 }

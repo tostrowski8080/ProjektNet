@@ -7,5 +7,6 @@ namespace WorkshopManager.Mappers
     {
         ClientDto ToDto(Client client);
         Client ToEntity(ClientCreateDto dto);
+        Client ToEntity(ClientUpdateDto dto);
     }
 }

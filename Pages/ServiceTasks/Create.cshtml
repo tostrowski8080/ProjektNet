@@ -1,6 +1,7 @@
 ﻿@page
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.ServiceTasks.CreateModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WorkshopManager.Models  <!-- dla enumów, jeśli potrzebne -->
 @{
     ViewData["Title"] = "Add Service Task";
 }
@@ -9,26 +10,29 @@
 
 <form method="post">
     <div class="form-group">
-        <label>Select assigned service order:</label>
-        <select asp-for="SelectedOrderId" class="form-control">
+        <label asp-for="Input.ServiceOrderId">Select assigned service order:</label>
+        <select asp-for="Input.ServiceOrderId" class="form-control" required>
             <option value="">-- select an order --</option>
             @foreach (var order in Model.AssignedOrders)
             {
                 <option value="@order.Id">
-                    Order #@order.Id - @order.CreationDate.ToShortDateString() - @order.Status
+                    Order #@order.Id – @order.CreationDate.ToShortDateString() – @order.Status
                 </option>
             }
         </select>
+        <span asp-validation-for="Input.ServiceOrderId" class="text-danger"></span>
     </div>
 
     <div class="form-group mt-3">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <label asp-for="Input.Description">Description</label>
+        <textarea asp-for="Input.Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Input.Description" class="text-danger"></span>
     </div>
 
     <div class="form-group mt-3">
-        <label>Cost (PLN)</label>
-        <input asp-for="Cost" class="form-control" type="number" min="0" />
+        <label asp-for="Input.Cost">Cost (PLN)</label>
+        <input asp-for="Input.Cost" class="form-control" type="number" min="0" />
+        <span asp-validation-for="Input.Cost" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-success mt-3">Add Task</button>

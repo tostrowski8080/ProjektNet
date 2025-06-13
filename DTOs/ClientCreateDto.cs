@@ -18,5 +18,7 @@ namespace WorkshopManager.DTOs
 
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+
+        public string AccountId { get; set; } = string.Empty;
     }
 }

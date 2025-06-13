@@ -1,34 +1,37 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using WorkshopManager.Data;
-using WorkshopManager.Models;
+using WorkshopManager.DTOs;
+using WorkshopManager.Services;
 
 namespace WorkshopManager.Pages.Parts
 {
     [Authorize(Roles = "Admin")]
     public class CreateModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IPartCatalogItemService _catalogService;
+        private readonly IPartService _partService;
 
-        public CreateModel(WorkshopDbContext context)
+        public CreateModel(
+            IPartCatalogItemService catalogService,
+            IPartService partService)
         {
-            _context = context;
+            _catalogService = catalogService;
+            _partService = partService;
         }
 
-        public class PartCatalogViewModel
+        public class CatalogItemViewModel
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = "";
             public int Stock { get; set; }
             public int Required { get; set; }
         }
 
-        public List<PartCatalogViewModel> CatalogItems { get; set; } = new();
+        public List<CatalogItemViewModel> CatalogItems { get; set; } = new();
 
         [BindProperty]
-        public PartCatalogItem NewPart { get; set; } = new();
+        public PartCatalogItemCreateDto NewPart { get; set; } = new();
 
         [BindProperty]
         public Dictionary<int, int> UpdatedStocks { get; set; } = new();
@@ -37,33 +40,63 @@ namespace WorkshopManager.Pages.Parts
 
         public async Task OnGetAsync()
         {
-            CatalogItems = await _context.PartCatalog
-                .Select(p => new PartCatalogViewModel
+            // Pobierz ca³y katalog
+            var items = await _catalogService.GetAllAsync();
+
+            // Dla ka¿dego policz sumê u¿ycia
+            CatalogItems = new List<CatalogItemViewModel>();
+            foreach (var dto in items)
+            {
+                var required = (await _partService
+                    .GetByOrderIdAsync(0))   // tu mo¿esz dodaæ przeci¹¿enie GetByCatalogId
+                    .Where(p => p.PartCatalogId == dto.Id)
+                    .Sum(p => p.Quantity);
+
+                CatalogItems.Add(new CatalogItemViewModel
                 {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Stock = p.Stock,
-                    Required = _context.Parts.Where(x => x.PartCatalogId == p.Id).Sum(x => (int?)x.Quantity) ?? 0
-                }).ToListAsync();
+                    Id = dto.Id,
+                    Name = dto.Name,
+                    Stock = dto.Stock,
+                    Required = required
+                });
+
+                // przygotuj domyœlne wartoœci formularza
+                UpdatedStocks[dto.Id] = dto.Stock;
+            }
         }
 
         public async Task<IActionResult> OnPostUpdateStockAsync()
         {
-            foreach (var entry in UpdatedStocks)
+            if (!ModelState.IsValid)
             {
-                var part = await _context.PartCatalog.FindAsync(entry.Key);
-                if (part != null)
-                    part.Stock = entry.Value;
+                await OnGetAsync();
+                return Page();
             }
 
-            await _context.SaveChangesAsync();
+            foreach (var kv in UpdatedStocks)
+            {
+                var updateDto = new PartCatalogItemUpdateDto
+                {
+                    Id = kv.Key,
+                    Stock = kv.Value,
+                    Name = CatalogItems.First(c => c.Id == kv.Key).Name,
+                    Price = (await _catalogService.GetByIdAsync(kv.Key))!.Price
+                };
+                await _catalogService.UpdateAsync(updateDto);
+            }
+
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostAddPartAsync()
         {
-            _context.PartCatalog.Add(NewPart);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                await OnGetAsync();
+                return Page();
+            }
+
+            await _catalogService.CreateAsync(NewPart);
             return RedirectToPage();
         }
     }

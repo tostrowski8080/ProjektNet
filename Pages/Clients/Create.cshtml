@@ -1,6 +1,6 @@
 ﻿@page
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.Clients.CreateModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Add Client";
 }
@@ -9,24 +9,24 @@
 
 <form method="post">
     <div>
-        <label>First name:</label>
-        <input asp-for="InputClient.FirstName" />
-        <span asp-validation-for="InputClient.FirstName" class="text-danger"></span>
+        <label asp-for="Input.FirstName"></label>
+        <input asp-for="Input.FirstName" />
+        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
     </div>
     <div>
-        <label>Last name:</label>
-        <input asp-for="InputClient.LastName" />
-        <span asp-validation-for="InputClient.LastName" class="text-danger"></span>
+        <label asp-for="Input.LastName"></label>
+        <input asp-for="Input.LastName" />
+        <span asp-validation-for="Input.LastName" class="text-danger"></span>
     </div>
     <div>
-        <label>Phone number:</label>
-        <input asp-for="InputClient.PhoneNumber" />
-        <span asp-validation-for="InputClient.PhoneNumber" class="text-danger"></span>
+        <label asp-for="Input.PhoneNumber"></label>
+        <input asp-for="Input.PhoneNumber" />
+        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
     </div>
     <div>
-        <label>Email:</label>
-        <input asp-for="InputClient.Email" />
-        <span asp-validation-for="InputClient.Email" class="text-danger"></span>
+        <label asp-for="Input.Email"></label>
+        <input asp-for="Input.Email" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
     </div>
     <button type="submit">Save</button>
 </form>

@@ -1,6 +1,6 @@
 ﻿@page
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.Parts.CreateModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Parts Panel";
 }
@@ -18,20 +18,21 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.CatalogItems)
+            @for (int i = 0; i < Model.CatalogItems.Count; i++)
             {
+                var item = Model.CatalogItems[i];
                 <tr>
                     <td>@item.Name</td>
                     <td>@item.Stock</td>
                     <td>@item.Required</td>
                     <td>
-                        <input type="number" name="UpdatedStocks[@item.Id]" value="@item.Stock" min="0" />
+                        <input asp-for="UpdatedStocks[@item.Id]" type="number" min="0" class="form-control" />
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    <button type="submit">Save Changes</button>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
 </form>
 
 @if (Model.IsAdmin)
@@ -39,22 +40,22 @@
     <hr />
     <h3>Add New Part (Admin only)</h3>
     <form method="post" asp-page-handler="AddPart">
-        <div>
-            <label>Name:</label>
-            <input asp-for="NewPart.Name" />
+        <div class="mb-3">
+            <label asp-for="NewPart.Name" class="form-label">Name:</label>
+            <input asp-for="NewPart.Name" class="form-control" />
             <span asp-validation-for="NewPart.Name" class="text-danger"></span>
         </div>
-        <div>
-            <label>Stock:</label>
-            <input asp-for="NewPart.Stock" type="number" min="0" />
+        <div class="mb-3">
+            <label asp-for="NewPart.Stock" class="form-label">Stock:</label>
+            <input asp-for="NewPart.Stock" type="number" min="0" class="form-control" />
             <span asp-validation-for="NewPart.Stock" class="text-danger"></span>
         </div>
-        <div>
-            <label>Price:</label>
-            <input asp-for="NewPart.Price" type="number" min="0" />
+        <div class="mb-3">
+            <label asp-for="NewPart.Price" class="form-label">Price:</label>
+            <input asp-for="NewPart.Price" type="number" min="0" class="form-control" />
             <span asp-validation-for="NewPart.Price" class="text-danger"></span>
         </div>
-        <button type="submit">Add Part</button>
+        <button type="submit" class="btn btn-success">Add Part</button>
     </form>
 }
 

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using WorkshopManager.Data;
+using WorkshopManager.DTOs;
+using WorkshopManager.Services;
 using WorkshopManager.Models;
 
 namespace WorkshopManager.Pages.ServiceOrders
@@ -10,79 +11,61 @@ namespace WorkshopManager.Pages.ServiceOrders
     [Authorize(Roles = "Admin,Receptionist")]
     public class CreateModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IServiceOrderService _orderService;
+        private readonly IVehicleService _vehicleService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CreateModel(WorkshopDbContext context)
+        public CreateModel(
+            IServiceOrderService orderService,
+            IVehicleService vehicleService,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _orderService = orderService;
+            _vehicleService = vehicleService;
+            _userManager = userManager;
         }
 
-        [BindProperty]
-        public int SelectedVehicleId { get; set; }
-
-        [BindProperty]
-        public string? Description { get; set; }
-
-        [BindProperty]
-        public string? SelectedWorkerId { get; set; }
-
+        // dane do formularza
         public List<Vehicle> Vehicles { get; set; } = new();
         public List<ApplicationUser> Mechanics { get; set; } = new();
 
+        [BindProperty]
+        public ServiceOrderCreateDto Input { get; set; } = new();
+
         public async Task<IActionResult> OnGetAsync()
         {
-            Vehicles = await _context.Vehicles
-                .Include(v => v.Client)
-                .Where(v => v.Client != null && !string.IsNullOrEmpty(v.Client.AccountId))
-                .ToListAsync();
+            var all = await _vehicleService.GetAllAsync();
+            Vehicles = all.Where(v => v.Client != null && !string.IsNullOrEmpty(v.Client.AccountId)).ToList();
 
-            Mechanics = await _context.Users
-                .Where(u => u.UserRole == "Mechanic")
-                .ToListAsync();
+            Mechanics = (await _userManager.GetUsersInRoleAsync("Mechanic")).ToList();
 
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid || SelectedVehicleId == 0)
+            if (!ModelState.IsValid || Input.VehicleId == 0)
             {
+                await OnGetAsync();
                 return Page();
             }
 
-            var order = new ServiceOrder
-            {
-                VehicleId = SelectedVehicleId,
-                CreationDate = DateTime.Now,
-                Description = Description,
-                Status = ServiceOrder.StatusType.New,
-                WorkerId = string.IsNullOrEmpty(SelectedWorkerId) ? null : SelectedWorkerId
-            };
+            if (string.IsNullOrWhiteSpace(Input.WorkerId))
+                Input.WorkerId = null;
 
-            _context.ServiceOrders.Add(order);
-            await _context.SaveChangesAsync();
-
+            await _orderService.CreateAsync(Input);
             return RedirectToRoleDashboard();
         }
 
         private IActionResult RedirectToRoleDashboard()
         {
             if (User.IsInRole("Receptionist"))
-            {
                 return RedirectToPage("/Dashboard/Receptionist");
-            }
-            else if (User.IsInRole("Admin"))
-            {
+            if (User.IsInRole("Admin"))
                 return RedirectToPage("/Dashboard/Admin");
-            }
-            else if (User.IsInRole("Client"))
-            {
+            if (User.IsInRole("Client"))
                 return RedirectToPage("/Dashboard/Client");
-            }
-            else
-            {
-                return RedirectToPage("/Index");
-            }
+            return RedirectToPage("/Index");
         }
     }
 }

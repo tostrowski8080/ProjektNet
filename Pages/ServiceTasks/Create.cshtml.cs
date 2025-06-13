@@ -2,65 +2,71 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using WorkshopManager.Data;
+using WorkshopManager.DTOs;
 using WorkshopManager.Models;
+using WorkshopManager.Services;
 
 namespace WorkshopManager.Pages.ServiceTasks
 {
     [Authorize(Roles = "Admin,Mechanic")]
     public class CreateModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IServiceOrderService _orderService;
+        private readonly IServiceTaskService _taskService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public CreateModel(WorkshopDbContext context, UserManager<ApplicationUser> userManager)
+        public CreateModel(
+            IServiceOrderService orderService,
+            IServiceTaskService taskService,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _orderService = orderService;
+            _taskService = taskService;
             _userManager = userManager;
         }
 
-        [BindProperty]
-        public int SelectedOrderId { get; set; }
+        public List<ServiceOrderDto> AssignedOrders { get; set; } = new();
 
         [BindProperty]
-        public string? Description { get; set; }
-
-        [BindProperty]
-        public int? Cost { get; set; }
-
-        public List<ServiceOrder> AssignedOrders { get; set; } = new();
+        public ServiceTaskCreateDto Input { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Forbid();
 
-            AssignedOrders = await _context.ServiceOrders.Where(so => so.WorkerId == user.Id).ToListAsync();
+            var all = await _orderService.GetAllAsync();
+            AssignedOrders = all
+                .Where(o => o.WorkerId == user.Id)
+                .ToList();
 
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid || SelectedOrderId == 0)
-                return Page();
-
-            var task = new ServiceTask
+            if (!ModelState.IsValid || Input.ServiceOrderId == 0)
             {
-                ServiceOrderId = SelectedOrderId,
-                Description = Description,
-                Cost = Cost
-            };
+                await OnGetAsync();
+                return Page();
+            }
 
-            var serviceOrder = await _context.ServiceOrders.FindAsync(SelectedOrderId);
-            if (serviceOrder == null)
-                return NotFound();
-            serviceOrder.TotalCost += Cost;
+            var createdTask = await _taskService.CreateAsync(Input);
 
-            _context.ServiceTasks.Add(task);
-            await _context.SaveChangesAsync();
+            var order = await _orderService.GetByIdAsync(Input.ServiceOrderId);
+            if (order != null)
+            {
+                var updateDto = new ServiceOrderUpdateDto
+                {
+                    Id = order.Id,
+                    Status = order.Status,
+                    Description = order.Description,
+                    WorkerId = order.WorkerId
+                };
+                await _orderService.UpdateAsync(updateDto);
+            }
 
-            return RedirectToPage("/ServiceOrders/Details", new { id = SelectedOrderId });
+            return RedirectToPage("/ServiceOrders/Details", new { id = Input.ServiceOrderId });
         }
     }
 }

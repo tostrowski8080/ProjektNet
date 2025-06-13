@@ -1,43 +1,52 @@
 ﻿@page
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.Vehicles.CreateModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    ViewData["Title"] = "Add Client";
+    ViewData["Title"] = "Add Vehicle";
 }
 
 <h2>Add Vehicle</h2>
 
-<form method="post">
-    <div>
-        <label>Make:</label>
-        <input asp-for="InputVehicle.Make" />
+<form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="InputVehicle.Make" class="form-label">Make:</label>
+        <input asp-for="InputVehicle.Make" class="form-control" />
         <span asp-validation-for="InputVehicle.Make" class="text-danger"></span>
     </div>
-    <div>
-        <label>Model:</label>
-        <input asp-for="InputVehicle.Model" />
+    <div class="mb-3">
+        <label asp-for="InputVehicle.Model" class="form-label">Model:</label>
+        <input asp-for="InputVehicle.Model" class="form-control" />
         <span asp-validation-for="InputVehicle.Model" class="text-danger"></span>
     </div>
-    <div>
-        <label>Vin:</label>
-        <input asp-for="InputVehicle.Vin" />
+    <div class="mb-3">
+        <label asp-for="InputVehicle.Vin" class="form-label">VIN:</label>
+        <input asp-for="InputVehicle.Vin" class="form-control" />
         <span asp-validation-for="InputVehicle.Vin" class="text-danger"></span>
     </div>
-    <div>
-        <label>Registration number:</label>
-        <input asp-for="InputVehicle.RegistrationNumber" />
+    <div class="mb-3">
+        <label asp-for="InputVehicle.RegistrationNumber" class="form-label">Registration Number:</label>
+        <input asp-for="InputVehicle.RegistrationNumber" class="form-control" />
         <span asp-validation-for="InputVehicle.RegistrationNumber" class="text-danger"></span>
     </div>
-    <div>
-        <label>Year:</label>
-        <input asp-for="InputVehicle.Year" />
+    <div class="mb-3">
+        <label asp-for="InputVehicle.Year" class="form-label">Year:</label>
+        <input asp-for="InputVehicle.Year" class="form-control" type="number" min="1900" max="2100" />
         <span asp-validation-for="InputVehicle.Year" class="text-danger"></span>
     </div>
-    <label>
-        Owner:
-        <select asp-for="InputVehicle.ClientId" asp-items="@(new SelectList(Model.Clients, "Id", "LastName"))"></select>
-    </label><br />
-    <button type="submit">Save</button>
+    <div class="mb-3">
+        <label asp-for="InputVehicle.Photo" class="form-label">Photo (optional):</label>
+        <input asp-for="InputVehicle.Photo" class="form-control" type="file" />
+        <span asp-validation-for="InputVehicle.Photo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="InputVehicle.ClientId" class="form-label">Owner:</label>
+        <select asp-for="InputVehicle.ClientId" asp-items="Model.Clients" class="form-select">
+            <option value="">-- select client --</option>
+        </select>
+        <span asp-validation-for="InputVehicle.ClientId" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
 </form>
 
 @section Scripts {

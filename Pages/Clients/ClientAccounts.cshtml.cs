@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using WorkshopManager.Data;
+using WorkshopManager.DTOs;
+using WorkshopManager.Services;
 using WorkshopManager.Models;
 
 namespace WorkshopManager.Pages.Clients
@@ -11,17 +11,20 @@ namespace WorkshopManager.Pages.Clients
     [Authorize(Roles = "Admin,Receptionist")]
     public class ClientAccountsModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IClientService _clientService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ClientAccountsModel(WorkshopDbContext context, UserManager<ApplicationUser> userManager)
+        public ClientAccountsModel(
+            IClientService clientService,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _clientService = clientService;
             _userManager = userManager;
         }
 
-        public List<Client> UnassignedClients { get; set; } = new();
-        public List<ApplicationUser> Users { get; set; } = new();
+        // Do wype³nienia w OnGet
+        public List<ClientDto> UnassignedClients { get; set; } = new();
+        public List<IdentityUserDto> Users { get; set; } = new();
 
         [BindProperty]
         public int SelectedClientId { get; set; }
@@ -31,47 +34,38 @@ namespace WorkshopManager.Pages.Clients
 
         public async Task OnGetAsync()
         {
-            UnassignedClients = await _context.Clients
-                .Where(c => string.IsNullOrEmpty(c.AccountId))
-                .ToListAsync();
+            UnassignedClients = (await _clientService.GetAllAsync())
+                                .Where(c => string.IsNullOrEmpty(c.AccountId))
+                                .ToList();
 
-            Users = await _userManager.Users.ToListAsync();
+            Users = _userManager.Users
+                .Select(u => new IdentityUserDto { Id = u.Id, UserName = u.UserName!, Email = u.Email! })
+                .ToList();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == SelectedClientId);
-
-            if (client == null)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("", "Client not found.");
                 await OnGetAsync();
                 return Page();
             }
 
-            if (!string.IsNullOrEmpty(client.AccountId))
-            {
-                ModelState.AddModelError("", "This client is already assigned to an account.");
-                await OnGetAsync();
-                return Page();
-            }
+            await _clientService.AssignToUserAsync(SelectedClientId, SelectedUserId);
 
-            var user = await _userManager.FindByIdAsync(SelectedUserId);
+            if (User.IsInRole("Receptionist"))
+                return RedirectToPage("/Dashboard/Receptionist");
+            if (User.IsInRole("Admin"))
+                return RedirectToPage("/Dashboard/Admin");
 
-            if (user == null)
-            {
-                ModelState.AddModelError("", "User not found.");
-                await OnGetAsync();
-                return Page();
-            }
-
-            client.AccountId = user.Id;
-            client.user = user;
-
-            _context.Clients.Update(client);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage();
+            return RedirectToPage("/Index");
         }
+    }
+
+    public class IdentityUserDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }

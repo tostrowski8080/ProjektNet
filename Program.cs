@@ -19,8 +19,20 @@ namespace WorkshopManager
             builder.Services.AddDbContext<WorkshopDbContext>(options => options.UseSqlServer(connectionString));
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IClientService, ClientService>();
+            builder.Services.AddScoped<IClientMapper, ClientMapper>();
+            builder.Services.AddScoped<IVehicleService, VehicleService>();
+            builder.Services.AddScoped<IVehicleMapper, VehicleMapper>();
+            builder.Services.AddScoped<IServiceOrderService, ServiceOrderService>();
+            builder.Services.AddScoped<IServiceOrderMapper, ServiceOrderMapper>();
+            builder.Services.AddScoped<IServiceTaskService, ServiceTaskService>();
+            builder.Services.AddScoped<IServiceTaskMapper, ServiceTaskMapper>();
+            builder.Services.AddScoped<IPartService, PartService>();
+            builder.Services.AddScoped<IPartMapper, PartMapper>();
+            builder.Services.AddScoped<IPartCatalogItemService, PartCatalogItemService>();
+            builder.Services.AddScoped<IPartCatalogItemMapper, PartCatalogItemMapper>();
+            builder.Services.AddScoped<IOrderCommentService, OrderCommentService>();
+            builder.Services.AddScoped<IOrderCommentMapper, OrderCommentMapper>();
             builder.Services.AddControllersWithViews();
-            builder.Services.AddSingleton<IClientMapper, ClientMapper>();
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
             builder.Services.AddRazorPages();
             builder.Services.ConfigureApplicationCookie(options =>

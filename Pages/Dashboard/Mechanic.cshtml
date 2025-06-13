@@ -5,4 +5,9 @@
 }
 
 <h2>Mechanic Panel</h2>
-<p>Welcome, Mechanic! Here are your assigned tasks and orders.</p>
+
+<div class="mt-4">
+    <a class="btn btn-success me-2" asp-page="/ServiceOrders/Details">See the details of Service Orders assigned to you</a>
+    <a class="btn btn-success me-2" asp-page="/ServiceTasks/Create">Add a task to service order</a>
+    <a class="btn btn-success me-2" asp-page="/ServiceTasks/AddPart">Add parts to a service task</a>
+</div>

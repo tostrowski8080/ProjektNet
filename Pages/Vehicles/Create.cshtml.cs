@@ -1,60 +1,69 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WorkshopManager.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using WorkshopManager.DTOs;
+using WorkshopManager.Mappers;
 using WorkshopManager.Models;
+using WorkshopManager.Services;
 
 namespace WorkshopManager.Pages.Vehicles
 {
     [Authorize(Roles = "Admin,Receptionist")]
     public class CreateModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IClientService _clientService;
+        private readonly IVehicleService _vehicleService;
+        private readonly IVehicleMapper _vehicleMapper;
 
-        public CreateModel(WorkshopDbContext context)
+        public CreateModel(
+            IClientService clientService,
+            IVehicleService vehicleService,
+            IVehicleMapper vehicleMapper)
         {
-            _context = context;
+            _clientService = clientService;
+            _vehicleService = vehicleService;
+            _vehicleMapper = vehicleMapper;
         }
 
         [BindProperty]
-        public Vehicle InputVehicle { get; set; } = new Vehicle();
+        public VehicleCreateDto InputVehicle { get; set; } = new();
 
-        public List<Client> Clients { get; set; }
+        public List<SelectListItem> Clients { get; set; } = new();
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            Clients = _context.Clients.ToList();
+            var clients = await _clientService.GetAllAsync();
+            Clients = clients
+                .Select(c => new SelectListItem(
+                    text: $"{c.FirstName} {c.LastName}",
+                    value: c.Id.ToString()))
+                .ToList();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
+            {
+                await OnGetAsync();
                 return Page();
-            var client = await _context.Clients.FindAsync(InputVehicle.ClientId);
-            InputVehicle.Client = client;
-            _context.Vehicles.Add(InputVehicle);
-            await _context.SaveChangesAsync();
+            }
+
+            var vehicleEntity = _vehicleMapper.ToEntity(InputVehicle);
+            await _vehicleService.AddAsync(vehicleEntity);
+
             return RedirectToRoleDashboard();
         }
 
         private IActionResult RedirectToRoleDashboard()
         {
             if (User.IsInRole("Receptionist"))
-            {
                 return RedirectToPage("/Dashboard/Receptionist");
-            }
-            else if (User.IsInRole("Admin"))
-            {
+            if (User.IsInRole("Admin"))
                 return RedirectToPage("/Dashboard/Admin");
-            }
-            else if (User.IsInRole("Client"))
-            {
+            if (User.IsInRole("Client"))
                 return RedirectToPage("/Dashboard/Client");
-            }
-            else
-            {
-                return RedirectToPage("/Index");
-            }
+            return RedirectToPage("/Index");
         }
     }
 }

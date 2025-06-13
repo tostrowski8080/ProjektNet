@@ -22,10 +22,10 @@ namespace WorkshopManager.Pages.Dashboard
         public Dictionary<string, string> UserRoles { get; set; } = new();
 
         [BindProperty]
-        public string SelectedUserId { get; set; }
+        public string SelectedUserId { get; set; } = string.Empty;
 
         [BindProperty]
-        public string SelectedRole { get; set; }
+        public string SelectedRole { get; set; } = string.Empty;
 
         public async Task OnGetAsync()
         {
@@ -33,22 +33,29 @@ namespace WorkshopManager.Pages.Dashboard
             foreach (var user in Users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                UserRoles[user.Id] = roles.FirstOrDefault() ?? "Brak";
+                UserRoles[user.Id] = roles.FirstOrDefault() ?? "(no role)";
             }
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostChangeRoleAsync()
         {
             if (string.IsNullOrEmpty(SelectedUserId) || string.IsNullOrEmpty(SelectedRole))
-                return RedirectToPage();
+            {
+                ModelState.AddModelError(string.Empty, "Both user and role are required.");
+                await OnGetAsync();
+                return Page();
+            }
 
             var user = await _userManager.FindByIdAsync(SelectedUserId);
-            if (user == null) return NotFound();
-            user.UserRole = SelectedRole;
+            if (user == null)
+                return NotFound();
 
-            var currentRole = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRole);
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
             await _userManager.AddToRoleAsync(user, SelectedRole);
+
+            user.UserRole = SelectedRole;
+            await _userManager.UpdateAsync(user);
 
             return RedirectToPage();
         }

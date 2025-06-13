@@ -1,14 +1,15 @@
-﻿using WorkshopManager.Models;
+﻿using WorkshopManager.DTOs;
+using WorkshopManager.Models;
 
 namespace WorkshopManager.Services
 {
     public interface IClientService
     {
-        Task<IEnumerable<Client>> GetAllClientsAsync();
-        Task<Client?> GetClientByIdAsync(int id);
-        Task AddClientAsync(Client client);
-        Task UpdateClientAsync(Client client);
-        Task DeleteClientAsync(int id);
-        Task<IEnumerable<Client>> SearchClientsAsync(string searchTerm);
+        Task<IEnumerable<ClientDto>> GetAllAsync(string? searchTerm = null);
+        Task<ClientDto?> GetByIdAsync(int id);
+        Task<ClientDto> CreateAsync(ClientCreateDto dto);
+        Task UpdateAsync(ClientUpdateDto dto);
+        Task DeleteAsync(int id);
+        Task AssignToUserAsync(int clientId, string userId);
     }
 }

@@ -1,45 +1,46 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WorkshopManager.Data;
-using WorkshopManager.Models;
+using WorkshopManager.DTOs;
+using WorkshopManager.Services;
 
 namespace WorkshopManager.Pages.Clients
 {
     [Authorize(Roles = "Admin,Receptionist")]
     public class CreateModel : PageModel
     {
-        private readonly WorkshopDbContext _context;
+        private readonly IClientService _clientService;
 
-        public CreateModel(WorkshopDbContext context)
+        public CreateModel(IClientService clientService)
         {
-            _context = context;
+            _clientService = clientService;
         }
 
         [BindProperty]
-        public Client InputClient { get; set; } = new Client();
+        public ClientCreateDto Input { get; set; } = new();
+
+        public void OnGet()
+        {
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
                 return Page();
 
-            _context.Clients.Add(InputClient);
-            await _context.SaveChangesAsync();
+            await _clientService.CreateAsync(Input);
             return RedirectToRoleDashboard();
         }
 
         private IActionResult RedirectToRoleDashboard()
         {
-            if (User.IsInRole("Receptionist")) {
+            if (User.IsInRole("Receptionist"))
                 return RedirectToPage("/Dashboard/Receptionist");
-            } else if (User.IsInRole("Admin")) {
+            if (User.IsInRole("Admin"))
                 return RedirectToPage("/Dashboard/Admin");
-            } else if (User.IsInRole("Client")) {
+            if (User.IsInRole("Client"))
                 return RedirectToPage("/Dashboard/Client");
-            } else {
-                return RedirectToPage("/Index");
-            }
+            return RedirectToPage("/Index");
         }
     }
 }
