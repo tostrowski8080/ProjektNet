@@ -15,6 +15,31 @@ namespace WorkshopManager.Controllers
 
         public IActionResult Index()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToPage("/Account/Register");
+            }
+
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToPage("/Dashboard/Admin");
+            }
+
+            if (User.IsInRole("Mechanic"))
+            {
+                return RedirectToPage("/Dashboard/Mechanic");
+            }
+
+            if (User.IsInRole("Receptionist"))
+            {
+                return RedirectToPage("/Dashboard/Receptionist");
+            }
+
+            if (User.IsInRole("Client"))
+            {
+                return RedirectToPage("/Dashboard/Client");
+            }
+
             return View();
         }
 

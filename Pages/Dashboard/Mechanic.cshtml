@@ -1,4 +1,5 @@
 ﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model WorkshopManager.Pages.Dashboard.MechanicModel
 @{
     ViewData["Title"] = "Mechanic Dashboard";
@@ -11,3 +12,8 @@
     <a class="btn btn-success me-2" asp-page="/ServiceTasks/Create">Add a task to service order</a>
     <a class="btn btn-success me-2" asp-page="/ServiceTasks/AddPart">Add parts to a service task</a>
 </div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using WorkshopManager.Data;
 using WorkshopManager.DTOs;
+using WorkshopManager.Models;
 using WorkshopManager.Services;
 
 namespace WorkshopManager.Pages.ServiceOrders
@@ -10,15 +14,17 @@ namespace WorkshopManager.Pages.ServiceOrders
         private readonly IClientService _clientService;
         private readonly IServiceOrderService _orderService;
         private readonly IOrderCommentService _commentService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly WorkshopDbContext _context;
 
-        public UserCommentsModel(
-            IClientService clientService,
-            IServiceOrderService orderService,
-            IOrderCommentService commentService)
+
+        public UserCommentsModel(IClientService clientService,IServiceOrderService orderService,IOrderCommentService commentService,UserManager<ApplicationUser> userManager, WorkshopDbContext context)
         {
             _clientService = clientService;
             _orderService = orderService;
             _commentService = commentService;
+            _userManager = userManager;
+            _context = context;
         }
 
         public List<ServiceOrderDto> Orders { get; set; } = new();
@@ -30,20 +36,29 @@ namespace WorkshopManager.Pages.ServiceOrders
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var accountId = User.Identity?.Name;
+            var accountId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(accountId))
                 return Unauthorized();
 
-            // Pobierz klienta po przypisanym AccountId
             var clients = await _clientService.GetAllAsync();
-            var client = clients.FirstOrDefault(c => c.AccountId == accountId);
-            if (client == null)
-                return NotFound("Client not found.");
+            var rawClients = await _context.Clients.Include(c => c.Vehicles).ToListAsync();
+            var client = rawClients.FirstOrDefault(c => c.AccountId == accountId);
+            if (client == null || client.Vehicles == null || client.Vehicles.Count == 0)
+            {
+                Console.WriteLine("Client not found or has no vehicles.");
+                return NotFound("Client not found or has no vehicles.");
+            }
+
+            var clientVehicleIds = client.Vehicles.Select(v => v.Id).ToHashSet();
+            Console.WriteLine($"Client ID: {client.Id}, Vehicles: {string.Join(",", clientVehicleIds)}");
 
             var allOrders = await _orderService.GetAllAsync();
+
             Orders = allOrders
-                .Where(o => client.Vehicles.Any(v => v.Id == o.VehicleId))
+                .Where(o => clientVehicleIds.Contains(o.VehicleId))
                 .ToList();
+
+            Console.WriteLine($"Orders found: {Orders.Count}");
 
             CommentsByOrder = new Dictionary<int, List<OrderCommentDto>>();
             foreach (var o in Orders)
@@ -58,12 +73,13 @@ namespace WorkshopManager.Pages.ServiceOrders
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var accountId = User.Identity?.Name;
+            var accountId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(accountId))
                 return Unauthorized();
 
             var clients = await _clientService.GetAllAsync();
-            var client = clients.FirstOrDefault(c => c.AccountId == accountId);
+            var rawClients = await _context.Clients.Include(c => c.Vehicles).ToListAsync();
+            var client = rawClients.FirstOrDefault(c => c.AccountId == accountId);
             if (client == null)
                 return NotFound("Client not found.");
 

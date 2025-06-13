@@ -1,0 +1,29 @@
+name: .NET Build & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore WorkshopManager.sln
+
+    - name: Build solution
+      run: dotnet build WorkshopManager.sln --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test WorkshopManager.sln --no-build --verbosity normal

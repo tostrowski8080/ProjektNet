@@ -2,62 +2,29 @@
 @model WorkshopManager.Pages.Parts.CreateModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    ViewData["Title"] = "Parts Panel";
+    ViewData["Title"] = "Add New Part";
 }
 
-<h2>Parts Catalog</h2>
+<h2>Add New Part</h2>
 
-<form method="post" asp-page-handler="UpdateStock">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Stock</th>
-                <th>Required (in use)</th>
-                <th>Update Stock</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.CatalogItems.Count; i++)
-            {
-                var item = Model.CatalogItems[i];
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Stock</td>
-                    <td>@item.Required</td>
-                    <td>
-                        <input asp-for="UpdatedStocks[@item.Id]" type="number" min="0" class="form-control" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="NewPart.Name" class="form-label"></label>
+        <input asp-for="NewPart.Name" class="form-control" />
+        <span asp-validation-for="NewPart.Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NewPart.Price" class="form-label"></label>
+        <input asp-for="NewPart.Price" class="form-control" />
+        <span asp-validation-for="NewPart.Price" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NewPart.Stock" class="form-label"></label>
+        <input asp-for="NewPart.Stock" class="form-control" />
+        <span asp-validation-for="NewPart.Stock" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Add Part</button>
 </form>
-
-@if (Model.IsAdmin)
-{
-    <hr />
-    <h3>Add New Part (Admin only)</h3>
-    <form method="post" asp-page-handler="AddPart">
-        <div class="mb-3">
-            <label asp-for="NewPart.Name" class="form-label">Name:</label>
-            <input asp-for="NewPart.Name" class="form-control" />
-            <span asp-validation-for="NewPart.Name" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="NewPart.Stock" class="form-label">Stock:</label>
-            <input asp-for="NewPart.Stock" type="number" min="0" class="form-control" />
-            <span asp-validation-for="NewPart.Stock" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="NewPart.Price" class="form-label">Price:</label>
-            <input asp-for="NewPart.Price" type="number" min="0" class="form-control" />
-            <span asp-validation-for="NewPart.Price" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-success">Add Part</button>
-    </form>
-}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -86,5 +86,15 @@ namespace WorkshopManager.Services
             _context.Clients.Update(client);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Client?> GetCustomerWithFullDetailsAsync(int id)
+        {
+            return await _context.Clients
+                .Include(c => c.Vehicles)
+                    .ThenInclude(v => v.ServiceOrders)
+                        .ThenInclude(o => o.Tasks)
+                            .ThenInclude(t => t.Parts)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
     }
 }

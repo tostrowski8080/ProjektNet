@@ -1,0 +1,14 @@
+2025-06-13 05:38:18.897 +02:00 [INF] [ThreadId:1] NBomber 6.0.2 started a new session: 2025-06-13_03.38.85_session_309760e8
+2025-06-13 05:38:18.937 +02:00 [INF] [ThreadId:1] NBomber started as single node
+2025-06-13 05:38:18.938 +02:00 [INF] [ThreadId:1] License validation....
+2025-06-13 05:38:18.939 +02:00 [WRN] [ThreadId:1] THIS VERSION IS FREE ONLY FOR PERSONAL USE. You can't use it for an organization.
+2025-06-13 05:38:18.969 +02:00 [INF] [ThreadId:1] Reports folder: C:\Users\diado\source\repos\WorkshopManager\bin\Debug\net9.0\reports
+2025-06-13 05:38:18.969 +02:00 [INF] [ThreadId:1] Plugins: no plugins were loaded
+2025-06-13 05:38:18.970 +02:00 [INF] [ThreadId:1] Reporting sinks: no reporting sinks were loaded
+2025-06-13 05:38:18.970 +02:00 [INF] [ThreadId:1] Starting init...
+2025-06-13 05:38:18.976 +02:00 [INF] [ThreadId:1] Target scenarios: orders_load_test
+2025-06-13 05:38:18.977 +02:00 [INF] [ThreadId:1] Init finished
+2025-06-13 05:38:18.998 +02:00 [INF] [ThreadId:1] Starting warm up...
+2025-06-13 05:38:18.999 +02:00 [INF] [ThreadId:1] Warm up for scenarios: orders_load_test
+2025-06-13 05:38:19.001 +02:00 [INF] [ThreadId:1] Warm up duration: 00:00:01
+2025-06-13 05:38:21.058 +02:00 [INF] [ThreadId:29] Starting bombing...

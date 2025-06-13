@@ -11,5 +11,6 @@ namespace WorkshopManager.Services
         Task UpdateAsync(ClientUpdateDto dto);
         Task DeleteAsync(int id);
         Task AssignToUserAsync(int clientId, string userId);
+        Task<Client?> GetCustomerWithFullDetailsAsync(int id);
     }
 }

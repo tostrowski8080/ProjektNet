@@ -2,6 +2,8 @@
 using WorkshopManager.DTOs;
 using WorkshopManager.Mappers;
 using WorkshopManager.Models;
+using WorkshopManager.Services;
+using WorkshopManager.PdfReports;
 
 namespace WorkshopManager.Controllers
 {
@@ -11,39 +13,43 @@ namespace WorkshopManager.Controllers
     {
         private readonly IClientMapper _clientMapper;
 
-        public ClientController(IClientMapper clientMapper)
+        private readonly IClientService _clientService;
+
+        public ClientController(IClientService clientService, IClientMapper clientMapper)
         {
+            _clientService = clientService;
             _clientMapper = clientMapper;
         }
 
         [HttpPost]
-        public IActionResult CreateClient([FromBody] ClientCreateDto dto)
+        public async Task<IActionResult> CreateClient([FromBody] ClientCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var client = _clientMapper.ToEntity(dto);
-            client.Id = 1;
-
-            var response = _clientMapper.ToDto(client);
-            return Ok(response);
+            await _clientService.CreateAsync(dto);
+            return Ok(dto);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetClient(int id)
+        public async Task<IActionResult> GetClient(int id)
         {
-            var client = new Client
-            {
-                Id = id,
-                FirstName = "John",
-                LastName = "Doe",
-                PhoneNumber = "1234567890",
-                Email = "john@example.com",
-                Vehicles = new List<Vehicle>()
-            };
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var dto = _clientMapper.ToDto(client);
-            return Ok(dto);
+            var client = await _clientService.GetByIdAsync(id);
+            return Ok(client);
+        }
+
+        [HttpGet("{id}/repair-report")]
+        public async Task<IActionResult> GenerateRepairReport(int id)
+        {
+            var customer = await _clientService.GetCustomerWithFullDetailsAsync(id);
+            if (customer == null)
+                return NotFound();
+
+            var pdf = ClientReport.Generate(customer);
+            return File(pdf, "application/pdf", $"Raport_{customer.LastName}.pdf");
         }
     }
 }

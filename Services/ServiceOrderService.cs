@@ -18,7 +18,7 @@ public class ServiceOrderService : IServiceOrderService
     public async Task<IEnumerable<ServiceOrderDto>> GetAllAsync(
         int? vehicleId = null, string? status = null)
     {
-        var query = _context.Set<ServiceOrder>()
+        var query = _context.ServiceOrders
             .AsQueryable();
 
         if (vehicleId.HasValue)
@@ -54,19 +54,29 @@ public class ServiceOrderService : IServiceOrderService
 
     public async Task UpdateAsync(ServiceOrderUpdateDto dto)
     {
-        var existing = await _context.Set<ServiceOrder>()
-            .FirstOrDefaultAsync(o => o.Id == dto.Id);
+        var existing = await _context.ServiceOrders.FirstOrDefaultAsync(o => o.Id == dto.Id);
         if (existing == null)
             throw new KeyNotFoundException($"Order {dto.Id} not found.");
 
-        var updated = _mapper.ToEntity(dto);
-        updated.CreationDate = existing.CreationDate;
-        updated.TotalCost = existing.TotalCost;
-        _context.Entry(existing).CurrentValues.SetValues(updated);
+        if (!string.IsNullOrWhiteSpace(dto.Status) &&
+            Enum.TryParse<ServiceOrder.StatusType>(dto.Status, out var newStatus))
+            existing.Status = newStatus;
 
-        if (Enum.TryParse<ServiceOrder.StatusType>(dto.Status, out var st)
-            && st == ServiceOrder.StatusType.Finished)
+        if (!string.IsNullOrWhiteSpace(dto.Description))
+            existing.Description = dto.Description;
+
+        if (!string.IsNullOrWhiteSpace(dto.WorkerId))
+            existing.WorkerId = dto.WorkerId;
+
+        if (dto.VehicleId.HasValue)
         {
+            var vehicleExists = await _context.Vehicles
+                .AnyAsync(v => v.Id == dto.VehicleId.Value);
+
+            if (!vehicleExists)
+                throw new ArgumentException($"Vehicle with ID {dto.VehicleId.Value} does not exist.");
+
+            existing.VehicleId = dto.VehicleId.Value;
         }
 
         await _context.SaveChangesAsync();
@@ -140,10 +150,13 @@ namespace WorkshopManager.Services
             if (existing == null)
                 throw new KeyNotFoundException($"Order {dto.Id} not found.");
 
-            var updated = _mapper.ToEntity(dto);
-            updated.CreationDate = existing.CreationDate;
-            updated.TotalCost = existing.TotalCost;
-            _context.Entry(existing).CurrentValues.SetValues(updated);
+            if (Enum.TryParse<ServiceOrder.StatusType>(dto.Status, out var newStatus))
+                existing.Status = newStatus;
+
+            existing.Description = dto.Description;
+            existing.WorkerId = dto.WorkerId;
+
+            await _context.SaveChangesAsync();
 
             if (Enum.TryParse<ServiceOrder.StatusType>(dto.Status, out var st)
                 && st == ServiceOrder.StatusType.Finished)

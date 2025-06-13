@@ -11,6 +11,8 @@ namespace WorkshopManager
     {
         public static async Task Main(string[] args)
         {
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
             var builder = WebApplication.CreateBuilder(args);
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -35,6 +37,7 @@ namespace WorkshopManager
             builder.Services.AddControllersWithViews();
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<WorkshopDbContext>().AddDefaultTokenProviders();
             builder.Services.AddRazorPages();
+            builder.Services.AddHostedService<OpenOrderReportBackgroundService>();
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Account/Login";

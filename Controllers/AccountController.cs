@@ -6,7 +6,6 @@ using WorkshopManager.DTOs;
 namespace WorkshopManager.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;

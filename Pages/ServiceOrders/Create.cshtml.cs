@@ -25,7 +25,6 @@ namespace WorkshopManager.Pages.ServiceOrders
             _userManager = userManager;
         }
 
-        // dane do formularza
         public List<Vehicle> Vehicles { get; set; } = new();
         public List<ApplicationUser> Mechanics { get; set; } = new();
 

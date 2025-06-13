@@ -1,5 +1,6 @@
 ﻿@page
 @model WorkshopManager.Pages.Dashboard.ClientModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Client Dashboard";
 }
@@ -11,3 +12,7 @@
     <a class="btn btn-success me-2" asp-page="/Vehicles/UploadVehiclePhoto">Add photos to your vehicles</a>
 
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

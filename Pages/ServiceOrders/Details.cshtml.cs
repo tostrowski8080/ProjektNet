@@ -4,6 +4,7 @@ using WorkshopManager.DTOs;
 using WorkshopManager.Services;
 using WorkshopManager.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace WorkshopManager.Pages.ServiceOrders
 {
@@ -11,10 +12,12 @@ namespace WorkshopManager.Pages.ServiceOrders
     public class DetailsModel : PageModel
     {
         private readonly IServiceOrderService _orderService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DetailsModel(IServiceOrderService orderService)
+        public DetailsModel(IServiceOrderService orderService, UserManager<ApplicationUser> userManager)
         {
             _orderService = orderService;
+            _userManager = userManager;
         }
 
         public List<ServiceOrderDto> Orders { get; set; } = new();
@@ -24,7 +27,7 @@ namespace WorkshopManager.Pages.ServiceOrders
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var mechanicId = User.Identity?.Name;
+            var mechanicId = _userManager.GetUserId(User);
             if (mechanicId == null)
                 return Unauthorized();
 

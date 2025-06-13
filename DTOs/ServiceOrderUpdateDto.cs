@@ -14,5 +14,7 @@ namespace WorkshopManager.DTOs
         public string? Description { get; set; }
 
         public string? WorkerId { get; set; }
+
+        public int? VehicleId { get; set; }
     }
 }

@@ -360,6 +360,9 @@ namespace WorkshopManager.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TotalCost")
+                        .HasColumnType("int");
+
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
